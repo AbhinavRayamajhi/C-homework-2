@@ -26,18 +26,24 @@ private:
 public:
 	// Default Constructor
 	BankAccount()
+		:mUserName ("Default"),	mAccountNumber (0), mAccountType ("Checking"), mPinNumber (0), mAccountAmount (0.0) {}
+
+	// Constructor using member initialized lists
+	BankAccount(string mUserName, int mAccountNumber, string mAccountType, int mPinNumber, double mAccountAmount)
+		:mUserName(mUserName), mAccountType(mAccountType), mPinNumber(mPinNumber)
 	{
-		mUserName = "Default";
-		mAccountNumber = 0;
-		mAccountType = "Checking";
-		mPinNumber = 0;
-		mAccountAmount = 0.0;
+		// Short hand if statement to make sure user does not input negative account numbers, abs function turns
+		// negative account numbers to positive
+		this->mAccountNumber = mAccountNumber < 0 ? abs(mAccountNumber) : mAccountNumber;
+
+		// If statement to make sure user does not input negative amount, set it to 0 if user inputs negative
+		this->mAccountAmount = mAccountAmount < 0 ? 0 : mAccountAmount;
 	}
 
 	// Destructor
 	~BankAccount()
 	{
-		cout << mUserName << "'s account has been deleted.";
+		cout << "\n\n" << mUserName << "'s account has been deleted.";
 	}
 
 	// Getters
@@ -88,7 +94,7 @@ public:
 		mPinNumber = pinNumber;
 	}
 
-	void setAccountNumber(double accountAmount)
+	void setAccountAmount(double accountAmount)
 	{
 		// If statement to make sure user does not input negative account amount
 		mAccountAmount = accountAmount < 0 ? 0 : accountAmount;
@@ -100,7 +106,7 @@ public:
 		cout << "\nUser Name: " << mUserName;
 		cout << "\nAccount Number: " << mAccountNumber;
 		cout << "\nAccount Type: " << mAccountType;
-		cout << "\nAccount Amount: " << mAccountAmount << "\n\n";
+		cout << "\nAccount Amount: " << mAccountAmount << "\n";
 	}
 
 	// Function to check for low balance
@@ -110,122 +116,28 @@ public:
 		if (mAccountAmount < 50)
 		{
 			cout << "Hey your bank balance seems to have dropped below $50. You will incur additional fees for " <<
-				"failure to maintain an account at or above $50. Add additional balance today to prevent said fees.";
+				"failure to maintain an account at or above $50.\nAdd additional balance today to prevent said fees.";
 		}
 	}
-
-	// Function to verify pin number
-	bool checkPin()
-	{
-		// Temporary variable to hold user input
-		int tempPin;
-
-		// Ask the user for pin number
-		cout << "\nEnter the pin number for " << mUserName << ": ";
-		cin >> tempPin;
-
-		// If pin matches return true else return false
-		if (tempPin == mPinNumber)
-		{
-			return true;
-		}
-		else
-		{
-			// If user inputs non integer characters, we have to clear the flag on cin and ignore those characters
-			cin.clear();
-			cin.ignore(1024, '\n');
-			
-			return false;
-		}
-	}
-
-	// Function to deposit money
-
-	// Function to withdraw money
-
-	// Function to update balance in member initializer list
-	int update()
-	{
-		// Temporary variable to store user input
-		int tempBalance;
-
-		// Ask user for balance
-		cout << "\nEnter starting balance for account: ";
-		cin >> tempBalance;
-
-		// If user input balance is positive we return it
-		if (tempBalance > 0)
-		{
-			return tempBalance;
-		}
-		// Else we return 0 as our starting balance
-		else
-		{
-			// If user inputs non integer characters, we have to clear the flag on cin and ignore those characters
-			cin.clear();
-			cin.ignore(1024, '\n');
-
-			return 0;
-		}
-	}
-
-	// Constructor using member initialized lists
-	BankAccount(string userName, int accountNumber, string accountType, int pinNumber)
-		:mUserName(userName), mAccountType(accountType), mPinNumber(pinNumber), mAccountAmount(update())
-	{
-		// Short hand if statement to make sure user does not input negative account numbers, abs function turns
-		// negative account numbers to positive
-		mAccountNumber = accountNumber < 0 ? abs(accountNumber) : accountNumber;
-	}
-
 };
 
 int main()
 {
 	cout << "SUPER BANKING SYSTEM\n";
 
-	// Create a bank account for user and ask for starting balance
-	BankAccount user("Abhinav", 1, "Checking", 1000);
+	// Create a bank account for user 
+	BankAccount user("Abhinav", 1, "Checking", 1000, 1000);
 
-	// Variable that stores user choice
-	int userChoice;
+	// Print current balance
+	user.viewAccountDetails();
 
-	// Main program loop. Displays a menu with choices for user and calls the required functions based on choice
-	do
-	{
-		cout << "\n1. View Account Details\n"
-			<< "2. Deposit Money\n"
-			<< "3. Withdraw Money\n"
-			<< "4. Exit\n";
-		cin >> userChoice;
+	// Set account amount to negative
+	user.setAccountAmount(-900);
+	cout << "\nBalance was updated.";
 
-		switch (userChoice)
-		{
-		case 1:
-			user.viewAccountDetails();
-			break;
+	// Verify that 0 was saved for account amount instead of negative number
+	cout << "\nCurrent balance: " << user.getAccountAmount() << "\n\n";
 
-		case 2:
-			break;
-
-		case 3:
-			break;
-
-		case 4:
-			cout << "\nThank you for using this banking system. Goodbye!";
-			break;
-
-		default:
-			cout << "\nInvalid option. Try again.\n";
-			/*
-			/ The following statements are required to clear the input stream if user inputs a non-integer. Otherwise
-			/ characters will remain in stream and cause an infinite loop. Max number of characters ignored from the
-			/ stream is set to 1024, which should be sufficient for most user inputs. 
-			*/
-			cin.clear();
-			cin.ignore(1024, '\n');
-			break;
-		}
-		cout << '\n';
-	} while (userChoice != 4);
+	// Print out the low balance warning now that our balance is 0 which is < 50
+	user.checkForLowBalance();
 }
